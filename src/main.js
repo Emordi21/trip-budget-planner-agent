@@ -49,20 +49,37 @@ function h(tag, props = {}, ...children) {
 const gbp = (n) => `£${(Number(n) || 0).toFixed(2)}`;
 
 function renderResult(plan) {
-  const b = plan.budget;
   const root = $("#result");
-  // replaceChildren() wants a flat list of elements, so we build an array,
-  // flatten the nested day cards into it and drop any empty (false/undefined) entries.
+
+  // Off-topic requests just get the assistant's polite redirect.
+  if (plan.status === "off_topic") {
+    root.replaceChildren(h("div", { className: "card" }, h("p", { text: plan.message })));
+    root.hidden = false;
+    return;
+  }
+
+  const { trip, location: loc, weather, budget: b } = plan;
   const sections = [
     h("div", { className: "card" },
-      h("h2", { text: plan.destination }),
-      h("p", { text: plan.summary }),
+      h("h2", { text: trip.title }),
+      h("p", { className: "hint", text: `${loc.city}, ${loc.country} · ${trip.duration_days} days · ${trip.travellers} traveller(s)` }),
+      h("p", { text: trip.summary }),
       h("div", { className: "summary-grid" },
         stat("Budget", gbp(b.total_gbp)),
         stat("Estimated cost", gbp(b.estimated_cost_gbp)),
         stat(b.within_budget ? "Left over" : "Over budget", gbp(Math.abs(b.remaining_gbp)), b.within_budget ? "ok" : "bad"),
       ),
-      b.exchange_rate_note && h("p", { className: "hint", text: b.exchange_rate_note }),
+    ),
+    weather && h("div", { className: "card" },
+      h("h2", { text: "Weather" }),
+      h("p", { text: weather.summary }),
+      h("ul", {}, (weather.daily ?? []).map((d) =>
+        h("li", { text: `${d.date}: ${d.conditions}${d.max_c != null ? `, ${d.min_c ?? "?"}–${d.max_c}°C` : ""}${d.rain_chance_percent != null ? `, ${d.rain_chance_percent}% rain` : ""}` }))),
+    ),
+    plan.price_conversions?.length > 0 && h("div", { className: "card" },
+      h("h2", { text: "Price conversions" }),
+      h("ul", {}, plan.price_conversions.map((c) =>
+        h("li", { text: `${c.item}: ${c.original_amount} ${c.original_currency} → ${gbp(c.amount_gbp)}${c.rate_to_gbp ? ` (rate ${c.rate_to_gbp}${c.rate_date ? `, ${c.rate_date}` : ""})` : ""}` }))),
     ),
     plan.itinerary.map(renderDay),
     plan.tips?.length > 0 &&
@@ -78,11 +95,9 @@ function stat(label, value, cls = "") {
 }
 
 function renderDay(day) {
-  const w = day.weather;
-  const weather = w ? ` · ${w.conditions}${w.max_c != null ? `, ${w.min_c ?? "?"}–${w.max_c}°C` : ""}` : "";
   return h("div", { className: "card day" },
     h("h3", { text: `Day ${day.day}: ${day.title}` }),
-    h("div", { className: "meta", text: `${day.date || ""}${weather}`.replace(/^ · /, "") }),
+    h("div", { className: "meta", text: day.date || "" }),
     h("ul", {}, day.activities.map((a) =>
       h("li", {},
         h("span", { text: `${a.time}: ${a.description}` }),

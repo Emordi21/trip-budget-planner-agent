@@ -11,7 +11,7 @@ function fakeClient(responses) {
   };
 }
 
-const PLAN = { destination: "Lisbon, Portugal", summary: "x", budget: { total_gbp: 800, estimated_cost_gbp: 500, remaining_gbp: 300, within_budget: true }, itinerary: [] };
+const PLAN = { status: "trip_plan", message: "hi", trip: { title: "Lisbon", summary: "x", duration_days: 3, travellers: 1 }, location: { city: "Lisbon", country: "Portugal", local_currency: "EUR" }, weather: { summary: "mild", daily: [] }, price_conversions: [], budget: { total_gbp: 800, estimated_cost_gbp: 500, remaining_gbp: 300, within_budget: true }, itinerary: [] };
 const request = { destination: "Lisbon", budget: 800, days: 3, travellers: 1, startDate: "", interests: "" };
 
 test("runs requested tools, sends results back, then returns structured JSON", async () => {
@@ -53,4 +53,21 @@ test("invalid JSON from the model gives a clear error", async () => {
     { id: "i2", steps: [{ type: "model_output", content: [{ type: "text", text: "not json" }] }] },
   ]);
   await assert.rejects(planTrip({ client, request }), /valid JSON/);
+});
+
+test("off-topic replies are passed through without needing trip fields", async () => {
+  const off = { status: "off_topic", message: "I can only help with travel." };
+  const client = fakeClient([
+    { id: "i1", steps: [] },
+    { id: "i2", steps: [{ type: "model_output", content: [{ type: "text", text: JSON.stringify(off) }] }] },
+  ]);
+  assert.deepEqual(await planTrip({ client, request }), off);
+});
+
+test("an incomplete trip plan is rejected", async () => {
+  const client = fakeClient([
+    { id: "i1", steps: [] },
+    { id: "i2", steps: [{ type: "model_output", content: [{ type: "text", text: JSON.stringify({ status: "trip_plan", message: "x" }) }] }] },
+  ]);
+  await assert.rejects(planTrip({ client, request }), /incomplete/);
 });
