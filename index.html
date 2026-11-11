@@ -6,51 +6,88 @@
     <title>Trip Budget Planner</title>
   </head>
   <body>
-    <main>
-      <h1>✈️ Trip Budget Planner</h1>
-      <p class="sub">Set a budget in £ and get a weather-aware, day-by-day plan.</p>
+    <header class="hero">
+      <div class="hero-inner">
+        <h1>✈️ Trip Budget Planner</h1>
+        <p>Set a budget in £ and get a weather-aware, day-by-day plan with live price conversions.</p>
+      </div>
+    </header>
 
-      <section class="card" id="key-card">
-        <h2>1. Gemini API key</h2>
-        <form id="key-form">
-          <input id="api-key" type="password" placeholder="Paste your Gemini API key" autocomplete="off" required />
-          <button type="submit">Save</button>
-        </form>
-        <label class="check"><input type="checkbox" id="remember" /> Remember on this device</label>
-        <p class="hint">
-          Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>.
-          Your key is sent only to Google, never to any other server.
-        </p>
-        <p id="key-status" class="hint"></p>
-      </section>
+    <div class="layout">
+      <!-- Left column: the "refine your search" style panel -->
+      <aside class="sidebar">
+        <section class="panel" id="key-card">
+          <h2>🔑 Gemini API key</h2>
+          <form id="key-form">
+            <input id="api-key" type="password" placeholder="Paste API key" aria-label="Gemini API key" autocomplete="off" required />
+            <button type="submit" class="btn-outline">Save</button>
+          </form>
+          <label class="check"><input type="checkbox" id="remember" /> Remember on this device</label>
+          <p class="hint">
+            Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>.
+            Your key is sent only to Google.
+          </p>
+          <p id="key-status" class="hint"></p>
+        </section>
 
-      <section class="card" id="trip-card">
-        <h2>2. Your trip</h2>
-        <form id="trip-form">
-          <label>Destination <small>(leave empty to get suggestions)</small>
-            <input name="destination" placeholder="e.g. Lisbon" />
-          </label>
-          <div class="row">
-            <label>Budget (£) <input name="budget" type="number" min="1" step="1" value="800" required /></label>
-            <label>Days <input name="days" type="number" min="1" max="14" value="4" required /></label>
-            <label>Travellers <input name="travellers" type="number" min="1" max="10" value="1" required /></label>
-          </div>
-          <label>Start date <small>(optional)</small> <input name="startDate" type="date" /></label>
-          <label>Interests <small>(optional)</small>
-            <input name="interests" placeholder="e.g. food, museums, hiking" />
-          </label>
-          <button type="submit" id="plan-btn">Plan my trip</button>
-        </form>
-      </section>
+        <section class="panel" id="trip-card">
+          <h2>🔍 Plan your trip</h2>
+          <form id="trip-form">
+            <label>Destination:
+              <input name="destination" placeholder="Dream location (optional)" />
+            </label>
 
-      <section id="progress" class="card" hidden>
-        <h2>Agent activity</h2>
-        <ul id="progress-list"></ul>
-      </section>
+            <label>Start date: <input name="startDate" type="date" /></label>
 
-      <p id="error" class="error" hidden></p>
-      <section id="result" hidden></section>
-    </main>
+            <div class="row">
+              <label>Days: <input name="days" type="number" min="1" max="14" value="4" required /></label>
+              <label>Travellers: <input name="travellers" type="number" min="1" max="10" value="1" required /></label>
+            </div>
+
+            <label>Your budget:
+              <span class="range-labels">
+                <span>£100</span>
+                <span class="budget-value">£<input name="budget" id="budget" type="number" min="50" step="10" value="800" required /></span>
+                <span>£5,000</span>
+              </span>
+              <input id="budget-range" type="range" min="100" max="5000" step="50" value="800" aria-label="Budget slider" />
+            </label>
+
+            <fieldset>
+              <legend>Interests:</legend>
+              <div class="chips">
+                <label class="chip"><input type="checkbox" name="interest" value="beaches" /><span>Beach getaways</span></label>
+                <label class="chip"><input type="checkbox" name="interest" value="city sightseeing" /><span>City breaks</span></label>
+                <label class="chip"><input type="checkbox" name="interest" value="food and drink" /><span>Food</span></label>
+                <label class="chip"><input type="checkbox" name="interest" value="museums and culture" /><span>Culture</span></label>
+                <label class="chip"><input type="checkbox" name="interest" value="hiking and nature" /><span>Nature</span></label>
+                <label class="chip"><input type="checkbox" name="interest" value="family-friendly activities" /><span>Family</span></label>
+                <label class="chip"><input type="checkbox" name="interest" value="nightlife" /><span>Nightlife</span></label>
+              </div>
+              <input name="interests" placeholder="Anything else? e.g. jazz, markets" />
+            </fieldset>
+
+            <button type="submit" id="plan-btn" class="btn-primary">Plan my trip</button>
+          </form>
+        </section>
+      </aside>
+
+      <!-- Right column: ideas first, then the agent's results -->
+      <main class="content">
+        <section id="ideas">
+          <h2 class="section-title">Need inspiration?</h2>
+          <div class="grid" id="ideas-grid"></div>
+        </section>
+
+        <section id="progress" class="panel" hidden>
+          <h2>Agent activity</h2>
+          <ul id="progress-list"></ul>
+        </section>
+
+        <p id="error" class="error" hidden></p>
+        <section id="result" hidden></section>
+      </main>
+    </div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
