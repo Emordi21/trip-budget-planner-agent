@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trip Budget Planner</title>
+  </head>
+  <body>
+    <main>
+      <h1>✈️ Trip Budget Planner</h1>
+      <p class="sub">Set a budget in £ and get a weather-aware, day-by-day plan.</p>
+
+      <section class="card" id="key-card">
+        <h2>1. Gemini API key</h2>
+        <form id="key-form">
+          <input id="api-key" type="password" placeholder="Paste your Gemini API key" autocomplete="off" required />
+          <button type="submit">Save</button>
+        </form>
+        <label class="check"><input type="checkbox" id="remember" /> Remember on this device</label>
+        <p class="hint">
+          Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>.
+          Your key is sent only to Google, never to any other server.
+        </p>
+        <p id="key-status" class="hint"></p>
+      </section>
+
+      <section class="card" id="trip-card">
+        <h2>2. Your trip</h2>
+        <form id="trip-form">
+          <label>Destination <small>(leave empty to get suggestions)</small>
+            <input name="destination" placeholder="e.g. Lisbon" />
+          </label>
+          <div class="row">
+            <label>Budget (£) <input name="budget" type="number" min="1" step="1" value="800" required /></label>
+            <label>Days <input name="days" type="number" min="1" max="14" value="4" required /></label>
+            <label>Travellers <input name="travellers" type="number" min="1" max="10" value="1" required /></label>
+          </div>
+          <label>Start date <small>(optional)</small> <input name="startDate" type="date" /></label>
+          <label>Interests <small>(optional)</small>
+            <input name="interests" placeholder="e.g. food, museums, hiking" />
+          </label>
+          <button type="submit" id="plan-btn">Plan my trip</button>
+        </form>
+      </section>
+
+      <section id="progress" class="card" hidden>
+        <h2>Agent activity</h2>
+        <ul id="progress-list"></ul>
+      </section>
+
+      <p id="error" class="error" hidden></p>
+      <section id="result" hidden></section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
